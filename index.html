@@ -10,13 +10,24 @@
             max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f5f5f5;
+            background: linear-gradient(135deg, #2596be 0%, #0036bc 100%);
+            min-height: 100vh;
         }
         .calculator-container {
             background: white;
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .logo-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo-container img {
+            max-height: 80px;
+            max-width: 300px;
+            height: auto;
+            width: auto;
         }
         h1 {
             color: #2c3e50;
@@ -110,22 +121,6 @@
             padding-top: 10px;
             margin-top: 10px;
         }
-        .export-section {
-            text-align: center;
-            margin-top: 20px;
-        }
-        button {
-            background-color: #27ae60;
-            color: white;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover {
-            background-color: #219a52;
-        }
         .hidden {
             display: none;
         }
@@ -133,6 +128,9 @@
 </head>
 <body>
     <div class="calculator-container">
+        <div class="logo-container">
+            <img src="logo.png" alt="Company Logo" />
+        </div>
         <h1>Real Estate Marketing Price Calculator</h1>
         
         <div class="input-section">
@@ -213,22 +211,6 @@
         <div class="output-section">
             <h2>Pricing Estimate</h2>
             
-            <div class="cost-breakdown">
-                <h3>Monthly Recurring Costs</h3>
-                <div class="cost-item">
-                    <span>Media Spend Fee (8%)</span>
-                    <span id="media_fee">8,000 NOK</span>
-                </div>
-                <div class="cost-item">
-                    <span>Channel Optimization</span>
-                    <span id="optimization_cost">14,040 NOK</span>
-                </div>
-                <div class="cost-item">
-                    <span>Reporting & Communication</span>
-                    <span id="reporting_cost">5,616 NOK</span>
-                </div>
-            </div>
-            
             <div class="cost-breakdown setup-section" id="setup_section">
                 <h3>Setup Costs (One-time upfront)</h3>
                 <div class="cost-item">
@@ -239,180 +221,36 @@
             
             <div class="total-section">
                 <div class="total-item">
-                    <span>Total Monthly:</span>
-                    <span id="total_monthly">27,656 NOK</span>
+                    <span>Channel Optimization:</span>
+                    <span id="optimization_cost_display">7,020 NOK</span>
                 </div>
-                <div class="total-item" id="monthly_breakdown_row">
-                    <span id="monthly_breakdown_label">Monthly costs for 3 months:</span>
-                    <span id="monthly_breakdown_total">82,968 NOK</span>
+                <div class="total-item">
+                    <span>Reporting & Communication:</span>
+                    <span id="reporting_cost_display">5,616 NOK</span>
                 </div>
-                <div class="total-item" id="setup_total_row">
-                    <span>Setup Costs (One-time):</span>
-                    <span id="setup_total">14,040 NOK</span>
+                <div class="total-item">
+                    <span>Media Spend Fee (8%):</span>
+                    <span id="media_fee_display">8,000 NOK</span>
+                </div>
+                <div class="total-item" style="border-top: 2px solid rgba(255,255,255,0.3); padding-top: 10px; margin-top: 10px;">
+                    <span><strong>Total Monthly:</strong></span>
+                    <span id="total_monthly"><strong>20,636 NOK</strong></span>
+                </div>
+                <div class="total-item" id="monthly_breakdown_row" style="border-top: 2px solid rgba(255,255,255,0.3); padding-top: 10px; margin-top: 10px;">
+                    <span id="monthly_breakdown_label"><strong>Total cost for 3 weeks:</strong></span>
+                    <span id="monthly_breakdown_total"><strong>61,908 NOK</strong></span>
                 </div>
                 <div class="total-item final-total">
-                    <span>Total Project:</span>
-                    <span id="total_project">97,008 NOK</span>
+                    <span><strong>Total Project Cost:</strong></span>
+                    <span id="total_project"><strong>75,948 NOK</strong></span>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script>
         // Constants
         const HOURLY_RATE = 1404;
-        
-        // Simplified CSV export as backup
-        function exportSimpleCSV() {
-            try {
-                console.log('Starting CSV export...');
-                
-                // Get basic data
-                const duration = parseInt(document.getElementById('duration').value);
-                const phase = document.getElementById('phase').value;
-                const mediaSpend = parseInt(document.getElementById('media_spend').value) || 0;
-                const includeSetup = document.getElementById('include_setup').checked;
-                
-                // Get selected channels
-                const selectedChannels = [];
-                if (document.getElementById('meta').checked) selectedChannels.push('Meta');
-                if (document.getElementById('google').checked) selectedChannels.push('Google Ads');
-                if (document.getElementById('display').checked) selectedChannels.push('Display');
-                if (document.getElementById('native').checked) selectedChannels.push('Native');
-                if (document.getElementById('ooh').checked) selectedChannels.push('Digital OOH');
-                
-                // Create CSV content with proper line breaks
-                let csvContent = "Kanal/medier,Format,Estimater/informasjon,Kampanje/strategi,Total brutto,Total CTC\n";
-                
-                selectedChannels.forEach(channel => {
-                    let format = '';
-                    if (channel === 'Meta') format = 'Feed+Story';
-                    else if (channel === 'Google Ads') format = 'Vanlige søkeannonser';
-                    else if (channel === 'Display') format = 'Banner';
-                    else if (channel === 'Native') format = 'Native artikkel';
-                    else if (channel === 'Digital OOH') format = 'DOOH';
-                    
-                    csvContent += `${channel},${format},Drive trafikk til landingsside og generere leads,${mediaSpend},${mediaSpend}\n`;
-                });
-                
-                // Add agency costs
-                csvContent += `\nByråhonorar,% av mediekjøp,,${Math.round(mediaSpend * selectedChannels.length * 0.08)}\n`;
-                
-                if (includeSetup) {
-                    // Calculate setup cost directly
-                    let setupCost = 0;
-                    if (document.getElementById('meta').checked) setupCost += 5 * 1404;
-                    if (document.getElementById('google').checked) setupCost += 5 * 1404;
-                    if (document.getElementById('display').checked) setupCost += 5 * 1404;
-                    if (document.getElementById('native').checked) setupCost += 5 * 1404;
-                    if (document.getElementById('ooh').checked) setupCost += 10 * 1404;
-                    
-                    csvContent += `Byråtimer,mediespesialist,,${setupCost}\n`;
-                }
-                
-                console.log('CSV content created:', csvContent);
-                
-                // Skip download, just show the content for copy-paste
-                showCopyableContent(csvContent);
-                
-            } catch (error) {
-                console.error('CSV export error:', error);
-                alert('Error: ' + error.message);
-            }
-        }
-        
-        // Show content for manual copy-paste
-        function showCopyableContent(content) {
-            try {
-                // Create a modal-like overlay instead of popup
-                const overlay = document.createElement('div');
-                overlay.style.cssText = `
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(0,0,0,0.8);
-                    z-index: 10000;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                `;
-                
-                const modal = document.createElement('div');
-                modal.style.cssText = `
-                    background: white;
-                    padding: 20px;
-                    border-radius: 10px;
-                    max-width: 80%;
-                    max-height: 80%;
-                    overflow: auto;
-                `;
-                
-                modal.innerHTML = `
-                    <h2>Mediaplan Data - Copy and Save</h2>
-                    <p><strong>Copy this content and paste into Excel:</strong></p>
-                    <textarea id="csvTextarea" style="width:600px; height:300px; font-family:monospace;" readonly>${content}</textarea>
-                    <br><br>
-                    <button onclick="document.getElementById('csvTextarea').select(); document.execCommand('copy'); alert('Copied to clipboard!');">Copy to Clipboard</button>
-                    <button onclick="document.body.removeChild(document.querySelector('[style*=\"position: fixed\"]')); ">Close</button>
-                    <p><strong>Instructions:</strong></p>
-                    <ol>
-                        <li>Click "Copy to Clipboard" or select all text and copy (Ctrl+A, Ctrl+C)</li>
-                        <li>Open Excel or Google Sheets</li>
-                        <li>Paste the data (Ctrl+V)</li>
-                        <li>Save as Excel file</li>
-                    </ol>
-                `;
-                
-                overlay.appendChild(modal);
-                document.body.appendChild(overlay);
-                
-                console.log('Content displayed in modal');
-                
-            } catch (error) {
-                console.error('Modal display error:', error);
-                // Ultimate fallback - just alert with instructions
-                alert('Download blocked. Please copy this data manually:\n\n' + content.substring(0, 500) + '...\n\nFull data logged to console.');
-                console.log('Full CSV content:', content);
-            }
-        }
-        
-        // Export mediaplan function - simplified version
-        function exportMediaplan() {
-            console.log('Export function called!');
-            alert('Export function called! Check console for details.');
-            
-            try {
-                // Simple test - just create a basic file
-                const testData = [
-                    ['Kanal/medier', 'Format', 'Total brutto'],
-                    ['Meta', 'Feed+Story', '100000'],
-                    ['Google Ads', 'Vanlige søkeannonser', '50000']
-                ];
-                
-                // Convert to CSV format
-                const csvContent = testData.map(row => row.join(',')).join('\\n');
-                
-                // Create blob and download
-                const blob = new Blob([csvContent], { type: 'text/csv' });
-                const url = window.URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = 'test_mediaplan.csv';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                window.URL.revokeObjectURL(url);
-                
-                console.log('Basic export test completed!');
-                
-            } catch (error) {
-                console.error('Export error:', error);
-                alert('Export error: ' + error.message);
-            }
-        }
         
         // Main calculation function
         function calculatePricing() {
@@ -434,18 +272,20 @@
             // Calculate media spend fee (8%)
             const mediaFee = mediaSpend * 0.08;
             
-            // Calculate setup costs
-            let setupCost = 0;
+            // Calculate setup costs - all channels have 5 hours
+            const setupCost = selectedChannels.length * 5 * HOURLY_RATE;
+            
+            // Calculate optimization hours per channel
+            let optimizationHours = 0;
             selectedChannels.forEach(channel => {
-                if (channel === 'ooh') {
-                    setupCost += 10 * HOURLY_RATE; // 10 hours for Digital OOH
+                if (channel === 'meta' || channel === 'google') {
+                    optimizationHours += 2.5; // Meta and Google: 2.5 hours
+                } else if (channel === 'ooh') {
+                    optimizationHours += 0; // Digital OOH: 0 hours (no optimization)
                 } else {
-                    setupCost += 5 * HOURLY_RATE; // 5 hours for other channels
+                    optimizationHours += 4; // Display and Native: 4 hours
                 }
             });
-            
-            // Calculate optimization hours
-            let optimizationHours = selectedChannels.length * 4; // 4 hours base per channel
             
             // Apply phase multiplier for Pre salg
             if (phase === 'pre_salg') {
@@ -485,106 +325,42 @@
                 monthlyBreakdown,
                 totalProject,
                 roundedMonths,
-                includeSetup
+                includeSetup,
+                duration
             });
         }
         
         // Update display function
         function updateDisplay(values) {
-            document.getElementById('media_fee').textContent = formatNOK(values.mediaFee);
-            document.getElementById('optimization_cost').textContent = formatNOK(values.optimizationCost);
-            document.getElementById('reporting_cost').textContent = formatNOK(values.reportingCost);
+            document.getElementById('optimization_cost_display').textContent = formatNOK(values.optimizationCost);
+            document.getElementById('reporting_cost_display').textContent = formatNOK(values.reportingCost);
+            document.getElementById('media_fee_display').textContent = formatNOK(values.mediaFee);
             document.getElementById('setup_cost').textContent = formatNOK(values.setupCost);
-            document.getElementById('total_monthly').textContent = formatNOK(values.totalMonthly);
-            document.getElementById('monthly_breakdown_total').textContent = formatNOK(values.monthlyBreakdown);
-            document.getElementById('setup_total').textContent = formatNOK(values.setupCost);
-            document.getElementById('total_project').textContent = formatNOK(values.totalProject);
+            document.getElementById('total_monthly').innerHTML = `<strong>${formatNOK(values.totalMonthly)}</strong>`;
+            document.getElementById('monthly_breakdown_total').innerHTML = `<strong>${formatNOK(values.monthlyBreakdown)}</strong>`;
+            document.getElementById('total_project').innerHTML = `<strong>${formatNOK(values.totalProject)}</strong>`;
             
-            // Update monthly breakdown label
-            const monthText = values.roundedMonths === 1 ? 'month' : 'months';
-            document.getElementById('monthly_breakdown_label').textContent = `Monthly costs for ${values.roundedMonths} ${monthText}:`;
+            // Update period breakdown label
+            const weekText = values.duration === 1 ? '1 week' : `${values.duration} weeks`;
+            document.getElementById('monthly_breakdown_label').innerHTML = `<strong>Total cost for ${weekText}:</strong>`;
             
-            // Show/hide monthly breakdown row (only show if more than 1 month)
+            // Show/hide monthly breakdown row (always show since we show weeks)
             const monthlyBreakdownRow = document.getElementById('monthly_breakdown_row');
-            if (values.roundedMonths > 1) {
-                monthlyBreakdownRow.classList.remove('hidden');
-            } else {
-                monthlyBreakdownRow.classList.add('hidden');
-            }
+            monthlyBreakdownRow.classList.remove('hidden');
             
             // Show/hide setup sections
             const setupSection = document.getElementById('setup_section');
-            const setupTotalRow = document.getElementById('setup_total_row');
             
             if (values.includeSetup) {
                 setupSection.classList.remove('hidden');
-                setupTotalRow.classList.remove('hidden');
             } else {
                 setupSection.classList.add('hidden');
-                setupTotalRow.classList.add('hidden');
             }
         }
         
         // Format currency function
         function formatNOK(amount) {
             return new Intl.NumberFormat('no-NO').format(Math.round(amount)) + ' NOK';
-        }
-        
-        // Export mediaplan function
-        function exportMediaplan() {
-            const duration = parseInt(document.getElementById('duration').value);
-            const phase = document.getElementById('phase').value;
-            const mediaSpend = parseInt(document.getElementById('media_spend').value) || 0;
-            
-            const selectedChannels = [];
-            if (document.getElementById('meta').checked) selectedChannels.push('Meta');
-            if (document.getElementById('google').checked) selectedChannels.push('Google Ads');
-            if (document.getElementById('display').checked) selectedChannels.push('Display');
-            if (document.getElementById('native').checked) selectedChannels.push('Native');
-            if (document.getElementById('ooh').checked) selectedChannels.push('Digital OOH');
-            
-            const includeSetup = document.getElementById('include_setup').checked;
-            const roundedMonths = Math.round(duration / 4.33);
-            
-            let exportText = `MEDIAPLAN ESTIMATE\n`;
-            exportText += `==================\n\n`;
-            exportText += `Project Duration: ${duration} weeks\n`;
-            exportText += `Phase: ${phase.replace('_', ' ')}\n`;
-            exportText += `Monthly Media Spend: ${formatNOK(mediaSpend)}\n`;
-            exportText += `Channels: ${selectedChannels.join(', ')}\n\n`;
-            
-            exportText += `MONTHLY RECURRING COSTS:\n`;
-            exportText += `------------------------\n`;
-            exportText += `Media Spend Fee (8%): ${document.getElementById('media_fee').textContent}\n`;
-            exportText += `Channel Optimization: ${document.getElementById('optimization_cost').textContent}\n`;
-            exportText += `Reporting & Communication: ${document.getElementById('reporting_cost').textContent}\n`;
-            exportText += `Monthly Total: ${document.getElementById('total_monthly').textContent}\n\n`;
-            
-            if (includeSetup) {
-                exportText += `SETUP COSTS (One-time upfront):\n`;
-                exportText += `-------------------------------\n`;
-                exportText += `Account Setup & Implementation: ${document.getElementById('setup_cost').textContent}\n\n`;
-            }
-            
-            exportText += `PROJECT TOTALS:\n`;
-            exportText += `---------------\n`;
-            exportText += `Total Monthly: ${document.getElementById('total_monthly').textContent}\n`;
-            exportText += `Monthly costs for ${roundedMonths} ${roundedMonths === 1 ? 'month' : 'months'}: ${document.getElementById('monthly_breakdown_total').textContent}\n`;
-            
-            if (includeSetup) {
-                exportText += `Setup Costs: ${document.getElementById('setup_total').textContent}\n`;
-            }
-            
-            exportText += `Total Project: ${document.getElementById('total_project').textContent}`;
-            
-            // Create and download file
-            const blob = new Blob([exportText], { type: 'text/plain' });
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'mediaplan_estimate.txt';
-            link.click();
-            window.URL.revokeObjectURL(url);
         }
         
         // Initialize event listeners
