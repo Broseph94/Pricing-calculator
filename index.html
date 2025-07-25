@@ -10,7 +10,7 @@
             max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
-            background: linear-gradient(135deg, #2596be 0%, #0036bc 100%);
+            background: #0036bc;
             min-height: 100vh;
         }
         .calculator-container {
@@ -129,7 +129,9 @@
 <body>
     <div class="calculator-container">
         <div class="logo-container">
-            <img src="./logo.png" alt="Company Logo" onerror="this.style.display='none'" />
+            <img src="logo.png" alt="Company Logo" 
+                 onerror="console.log('Logo failed to load'); this.style.display='none';" 
+                 onload="console.log('Logo loaded successfully');" />
         </div>
         <h1>Real Estate Marketing Price Calculator</h1>
         
