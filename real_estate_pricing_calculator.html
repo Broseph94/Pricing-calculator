@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate Marketing Price Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .calculator-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .input-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #34495e;
+        }
+        select, input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+        }
+        .full-width {
+            grid-column: span 2;
+        }
+        .output-section {
+            background-color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .output-section h2 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        .cost-breakdown {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .cost-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .cost-item:last-child {
+            border-bottom: none;
+        }
+        .setup-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+        }
+        .total-section {
+            background-color: #3498db;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        .total-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .total-item.final-total {
+            font-size: 18px;
+            font-weight: bold;
+            border-top: 2px solid rgba(255,255,255,0.3);
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+        .export-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+        button {
+            background-color: #27ae60;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #219a52;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h1>Real Estate Marketing Price Calculator</h1>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <label for="duration">Project Duration:</label>
+                <select id="duration">
+                    <option value="1">1 week</option>
+                    <option value="2">2 weeks</option>
+                    <option value="3">3 weeks</option>
+                    <option value="4">4 weeks (1 month)</option>
+                    <option value="5">5 weeks</option>
+                    <option value="6">6 weeks</option>
+                    <option value="7">7 weeks</option>
+                    <option value="8">8 weeks (2 months)</option>
+                    <option value="9">9 weeks</option>
+                    <option value="10">10 weeks</option>
+                    <option value="11">11 weeks</option>
+                    <option value="12" selected>12 weeks (3 months)</option>
+                </select>
+            </div>
+            
+            <div class="input-group">
+                <label for="phase">Project Phase:</label>
+                <select id="phase">
+                    <option value="pre_salg">Pre salg (+20% optimization)</option>
+                    <option value="salgsstart" selected>Salgsstart</option>
+                    <option value="i_salg">I salg</option>
+                </select>
+            </div>
+            
+            <div class="input-group">
+                <label for="media_spend">Monthly Media Spend (NOK):</label>
+                <input type="number" id="media_spend" value="100000" min="0" step="1000">
+            </div>
+            
+            <div class="input-group">
+                <label for="reporting">Reporting Level:</label>
+                <select id="reporting">
+                    <option value="basic">Basic (2 hrs) - Monthly email + report</option>
+                    <option value="standard" selected>Standard (4 hrs) - Bi-weekly email + monthly report</option>
+                    <option value="high_touch">High-touch (8 hrs) - Weekly + monthly + meeting</option>
+                </select>
+            </div>
+            
+            <div class="input-group full-width">
+                <label>
+                    <input type="checkbox" id="include_setup" checked> Include Setup Costs in Estimate
+                </label>
+            </div>
+            
+            <div class="input-group full-width">
+                <label>Select Channels:</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="meta" checked>
+                        <label for="meta">Meta</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="google" checked>
+                        <label for="google">Google Ads</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="display">
+                        <label for="display">Display</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="native">
+                        <label for="native">Native</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="ooh">
+                        <label for="ooh">Digital OOH</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="output-section">
+            <h2>Pricing Estimate</h2>
+            
+            <div class="cost-breakdown">
+                <h3>Monthly Recurring Costs</h3>
+                <div class="cost-item">
+                    <span>Media Spend Fee (8%)</span>
+                    <span id="media_fee">8,000 NOK</span>
+                </div>
+                <div class="cost-item">
+                    <span>Channel Optimization</span>
+                    <span id="optimization_cost">14,040 NOK</span>
+                </div>
+                <div class="cost-item">
+                    <span>Reporting & Communication</span>
+                    <span id="reporting_cost">5,616 NOK</span>
+                </div>
+            </div>
+            
+            <div class="cost-breakdown setup-section" id="setup_section">
+                <h3>Setup Costs (One-time upfront)</h3>
+                <div class="cost-item">
+                    <span>Account Setup & Implementation</span>
+                    <span id="setup_cost">14,040 NOK</span>
+                </div>
+            </div>
+            
+            <div class="total-section">
+                <div class="total-item">
+                    <span>Total Monthly:</span>
+                    <span id="total_monthly">27,656 NOK</span>
+                </div>
+                <div class="total-item" id="monthly_breakdown_row">
+                    <span id="monthly_breakdown_label">Monthly costs for 3 months:</span>
+                    <span id="monthly_breakdown_total">82,968 NOK</span>
+                </div>
+                <div class="total-item" id="setup_total_row">
+                    <span>Setup Costs (One-time):</span>
+                    <span id="setup_total">14,040 NOK</span>
+                </div>
+                <div class="total-item final-total">
+                    <span>Total Project:</span>
+                    <span id="total_project">97,008 NOK</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script>
+        // Constants
+        const HOURLY_RATE = 1404;
+        
+        // Simplified CSV export as backup
+        function exportSimpleCSV() {
+            try {
+                console.log('Starting CSV export...');
+                
+                // Get basic data
+                const duration = parseInt(document.getElementById('duration').value);
+                const phase = document.getElementById('phase').value;
+                const mediaSpend = parseInt(document.getElementById('media_spend').value) || 0;
+                const includeSetup = document.getElementById('include_setup').checked;
+                
+                // Get selected channels
+                const selectedChannels = [];
+                if (document.getElementById('meta').checked) selectedChannels.push('Meta');
+                if (document.getElementById('google').checked) selectedChannels.push('Google Ads');
+                if (document.getElementById('display').checked) selectedChannels.push('Display');
+                if (document.getElementById('native').checked) selectedChannels.push('Native');
+                if (document.getElementById('ooh').checked) selectedChannels.push('Digital OOH');
+                
+                // Create CSV content with proper line breaks
+                let csvContent = "Kanal/medier,Format,Estimater/informasjon,Kampanje/strategi,Total brutto,Total CTC\n";
+                
+                selectedChannels.forEach(channel => {
+                    let format = '';
+                    if (channel === 'Meta') format = 'Feed+Story';
+                    else if (channel === 'Google Ads') format = 'Vanlige søkeannonser';
+                    else if (channel === 'Display') format = 'Banner';
+                    else if (channel === 'Native') format = 'Native artikkel';
+                    else if (channel === 'Digital OOH') format = 'DOOH';
+                    
+                    csvContent += `${channel},${format},Drive trafikk til landingsside og generere leads,${mediaSpend},${mediaSpend}\n`;
+                });
+                
+                // Add agency costs
+                csvContent += `\nByråhonorar,% av mediekjøp,,${Math.round(mediaSpend * selectedChannels.length * 0.08)}\n`;
+                
+                if (includeSetup) {
+                    // Calculate setup cost directly
+                    let setupCost = 0;
+                    if (document.getElementById('meta').checked) setupCost += 5 * 1404;
+                    if (document.getElementById('google').checked) setupCost += 5 * 1404;
+                    if (document.getElementById('display').checked) setupCost += 5 * 1404;
+                    if (document.getElementById('native').checked) setupCost += 5 * 1404;
+                    if (document.getElementById('ooh').checked) setupCost += 10 * 1404;
+                    
+                    csvContent += `Byråtimer,mediespesialist,,${setupCost}\n`;
+                }
+                
+                console.log('CSV content created:', csvContent);
+                
+                // Skip download, just show the content for copy-paste
+                showCopyableContent(csvContent);
+                
+            } catch (error) {
+                console.error('CSV export error:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        // Show content for manual copy-paste
+        function showCopyableContent(content) {
+            try {
+                // Create a modal-like overlay instead of popup
+                const overlay = document.createElement('div');
+                overlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0,0,0,0.8);
+                    z-index: 10000;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                `;
+                
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    background: white;
+                    padding: 20px;
+                    border-radius: 10px;
+                    max-width: 80%;
+                    max-height: 80%;
+                    overflow: auto;
+                `;
+                
+                modal.innerHTML = `
+                    <h2>Mediaplan Data - Copy and Save</h2>
+                    <p><strong>Copy this content and paste into Excel:</strong></p>
+                    <textarea id="csvTextarea" style="width:600px; height:300px; font-family:monospace;" readonly>${content}</textarea>
+                    <br><br>
+                    <button onclick="document.getElementById('csvTextarea').select(); document.execCommand('copy'); alert('Copied to clipboard!');">Copy to Clipboard</button>
+                    <button onclick="document.body.removeChild(document.querySelector('[style*=\"position: fixed\"]')); ">Close</button>
+                    <p><strong>Instructions:</strong></p>
+                    <ol>
+                        <li>Click "Copy to Clipboard" or select all text and copy (Ctrl+A, Ctrl+C)</li>
+                        <li>Open Excel or Google Sheets</li>
+                        <li>Paste the data (Ctrl+V)</li>
+                        <li>Save as Excel file</li>
+                    </ol>
+                `;
+                
+                overlay.appendChild(modal);
+                document.body.appendChild(overlay);
+                
+                console.log('Content displayed in modal');
+                
+            } catch (error) {
+                console.error('Modal display error:', error);
+                // Ultimate fallback - just alert with instructions
+                alert('Download blocked. Please copy this data manually:\n\n' + content.substring(0, 500) + '...\n\nFull data logged to console.');
+                console.log('Full CSV content:', content);
+            }
+        }
+        
+        // Export mediaplan function - simplified version
+        function exportMediaplan() {
+            console.log('Export function called!');
+            alert('Export function called! Check console for details.');
+            
+            try {
+                // Simple test - just create a basic file
+                const testData = [
+                    ['Kanal/medier', 'Format', 'Total brutto'],
+                    ['Meta', 'Feed+Story', '100000'],
+                    ['Google Ads', 'Vanlige søkeannonser', '50000']
+                ];
+                
+                // Convert to CSV format
+                const csvContent = testData.map(row => row.join(',')).join('\\n');
+                
+                // Create blob and download
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'test_mediaplan.csv';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+                
+                console.log('Basic export test completed!');
+                
+            } catch (error) {
+                console.error('Export error:', error);
+                alert('Export error: ' + error.message);
+            }
+        }
+        
+        // Main calculation function
+        function calculatePricing() {
+            // Get all input values
+            const duration = parseInt(document.getElementById('duration').value);
+            const phase = document.getElementById('phase').value;
+            const mediaSpend = parseInt(document.getElementById('media_spend').value) || 0;
+            const reporting = document.getElementById('reporting').value;
+            const includeSetup = document.getElementById('include_setup').checked;
+            
+            // Get selected channels
+            const selectedChannels = [];
+            if (document.getElementById('meta').checked) selectedChannels.push('meta');
+            if (document.getElementById('google').checked) selectedChannels.push('google');
+            if (document.getElementById('display').checked) selectedChannels.push('display');
+            if (document.getElementById('native').checked) selectedChannels.push('native');
+            if (document.getElementById('ooh').checked) selectedChannels.push('ooh');
+            
+            // Calculate media spend fee (8%)
+            const mediaFee = mediaSpend * 0.08;
+            
+            // Calculate setup costs
+            let setupCost = 0;
+            selectedChannels.forEach(channel => {
+                if (channel === 'ooh') {
+                    setupCost += 10 * HOURLY_RATE; // 10 hours for Digital OOH
+                } else {
+                    setupCost += 5 * HOURLY_RATE; // 5 hours for other channels
+                }
+            });
+            
+            // Calculate optimization hours
+            let optimizationHours = selectedChannels.length * 4; // 4 hours base per channel
+            
+            // Apply phase multiplier for Pre salg
+            if (phase === 'pre_salg') {
+                optimizationHours = optimizationHours * 1.2; // +20% for pre salg
+            }
+            
+            // Add multi-channel complexity hours
+            if (selectedChannels.length >= 4) {
+                optimizationHours += 4;
+            } else if (selectedChannels.length >= 3) {
+                optimizationHours += 2;
+            }
+            
+            const optimizationCost = optimizationHours * HOURLY_RATE;
+            
+            // Calculate reporting cost
+            let reportingHours = 4; // default standard
+            if (reporting === 'basic') reportingHours = 2;
+            else if (reporting === 'high_touch') reportingHours = 8;
+            
+            const reportingCost = reportingHours * HOURLY_RATE;
+            
+            // Calculate project totals
+            const weeksToMonths = duration / 4.33;
+            const roundedMonths = Math.round(weeksToMonths);
+            const totalMonthly = mediaFee + optimizationCost + reportingCost;
+            const monthlyBreakdown = totalMonthly * weeksToMonths;
+            const totalProject = monthlyBreakdown + (includeSetup ? setupCost : 0);
+            
+            // Update display
+            updateDisplay({
+                mediaFee,
+                optimizationCost,
+                reportingCost,
+                setupCost,
+                totalMonthly,
+                monthlyBreakdown,
+                totalProject,
+                roundedMonths,
+                includeSetup
+            });
+        }
+        
+        // Update display function
+        function updateDisplay(values) {
+            document.getElementById('media_fee').textContent = formatNOK(values.mediaFee);
+            document.getElementById('optimization_cost').textContent = formatNOK(values.optimizationCost);
+            document.getElementById('reporting_cost').textContent = formatNOK(values.reportingCost);
+            document.getElementById('setup_cost').textContent = formatNOK(values.setupCost);
+            document.getElementById('total_monthly').textContent = formatNOK(values.totalMonthly);
+            document.getElementById('monthly_breakdown_total').textContent = formatNOK(values.monthlyBreakdown);
+            document.getElementById('setup_total').textContent = formatNOK(values.setupCost);
+            document.getElementById('total_project').textContent = formatNOK(values.totalProject);
+            
+            // Update monthly breakdown label
+            const monthText = values.roundedMonths === 1 ? 'month' : 'months';
+            document.getElementById('monthly_breakdown_label').textContent = `Monthly costs for ${values.roundedMonths} ${monthText}:`;
+            
+            // Show/hide monthly breakdown row (only show if more than 1 month)
+            const monthlyBreakdownRow = document.getElementById('monthly_breakdown_row');
+            if (values.roundedMonths > 1) {
+                monthlyBreakdownRow.classList.remove('hidden');
+            } else {
+                monthlyBreakdownRow.classList.add('hidden');
+            }
+            
+            // Show/hide setup sections
+            const setupSection = document.getElementById('setup_section');
+            const setupTotalRow = document.getElementById('setup_total_row');
+            
+            if (values.includeSetup) {
+                setupSection.classList.remove('hidden');
+                setupTotalRow.classList.remove('hidden');
+            } else {
+                setupSection.classList.add('hidden');
+                setupTotalRow.classList.add('hidden');
+            }
+        }
+        
+        // Format currency function
+        function formatNOK(amount) {
+            return new Intl.NumberFormat('no-NO').format(Math.round(amount)) + ' NOK';
+        }
+        
+        // Export mediaplan function
+        function exportMediaplan() {
+            const duration = parseInt(document.getElementById('duration').value);
+            const phase = document.getElementById('phase').value;
+            const mediaSpend = parseInt(document.getElementById('media_spend').value) || 0;
+            
+            const selectedChannels = [];
+            if (document.getElementById('meta').checked) selectedChannels.push('Meta');
+            if (document.getElementById('google').checked) selectedChannels.push('Google Ads');
+            if (document.getElementById('display').checked) selectedChannels.push('Display');
+            if (document.getElementById('native').checked) selectedChannels.push('Native');
+            if (document.getElementById('ooh').checked) selectedChannels.push('Digital OOH');
+            
+            const includeSetup = document.getElementById('include_setup').checked;
+            const roundedMonths = Math.round(duration / 4.33);
+            
+            let exportText = `MEDIAPLAN ESTIMATE\n`;
+            exportText += `==================\n\n`;
+            exportText += `Project Duration: ${duration} weeks\n`;
+            exportText += `Phase: ${phase.replace('_', ' ')}\n`;
+            exportText += `Monthly Media Spend: ${formatNOK(mediaSpend)}\n`;
+            exportText += `Channels: ${selectedChannels.join(', ')}\n\n`;
+            
+            exportText += `MONTHLY RECURRING COSTS:\n`;
+            exportText += `------------------------\n`;
+            exportText += `Media Spend Fee (8%): ${document.getElementById('media_fee').textContent}\n`;
+            exportText += `Channel Optimization: ${document.getElementById('optimization_cost').textContent}\n`;
+            exportText += `Reporting & Communication: ${document.getElementById('reporting_cost').textContent}\n`;
+            exportText += `Monthly Total: ${document.getElementById('total_monthly').textContent}\n\n`;
+            
+            if (includeSetup) {
+                exportText += `SETUP COSTS (One-time upfront):\n`;
+                exportText += `-------------------------------\n`;
+                exportText += `Account Setup & Implementation: ${document.getElementById('setup_cost').textContent}\n\n`;
+            }
+            
+            exportText += `PROJECT TOTALS:\n`;
+            exportText += `---------------\n`;
+            exportText += `Total Monthly: ${document.getElementById('total_monthly').textContent}\n`;
+            exportText += `Monthly costs for ${roundedMonths} ${roundedMonths === 1 ? 'month' : 'months'}: ${document.getElementById('monthly_breakdown_total').textContent}\n`;
+            
+            if (includeSetup) {
+                exportText += `Setup Costs: ${document.getElementById('setup_total').textContent}\n`;
+            }
+            
+            exportText += `Total Project: ${document.getElementById('total_project').textContent}`;
+            
+            // Create and download file
+            const blob = new Blob([exportText], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'mediaplan_estimate.txt';
+            link.click();
+            window.URL.revokeObjectURL(url);
+        }
+        
+        // Initialize event listeners
+        function initializeEventListeners() {
+            const inputIds = [
+                'duration', 'phase', 'media_spend', 'reporting', 'include_setup',
+                'meta', 'google', 'display', 'native', 'ooh'
+            ];
+            
+            inputIds.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('change', calculatePricing);
+                    element.addEventListener('input', calculatePricing);
+                }
+            });
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
+            calculatePricing(); // Initial calculation
+        });
+    </script>
+</body>
+</html>
