@@ -129,7 +129,7 @@
 <body>
     <div class="calculator-container">
         <div class="logo-container">
-            <img src="logo.png" alt="Company Logo" />
+            <img src="./logo.png" alt="Company Logo" onerror="this.style.display='none'" />
         </div>
         <h1>Real Estate Marketing Price Calculator</h1>
         
@@ -236,8 +236,8 @@
                     <span><strong>Total Monthly:</strong></span>
                     <span id="total_monthly"><strong>20,636 NOK</strong></span>
                 </div>
-                <div class="total-item" id="monthly_breakdown_row" style="border-top: 2px solid rgba(255,255,255,0.3); padding-top: 10px; margin-top: 10px;">
-                    <span id="monthly_breakdown_label"><strong>Total cost for 3 weeks:</strong></span>
+                <div class="total-item" style="border-top: 2px solid rgba(255,255,255,0.3); padding-top: 10px; margin-top: 10px;">
+                    <span id="monthly_breakdown_label"><strong>Total cost for 12 weeks:</strong></span>
                     <span id="monthly_breakdown_total"><strong>61,908 NOK</strong></span>
                 </div>
                 <div class="total-item final-total">
@@ -310,7 +310,6 @@
             
             // Calculate project totals
             const weeksToMonths = duration / 4.33;
-            const roundedMonths = Math.round(weeksToMonths);
             const totalMonthly = mediaFee + optimizationCost + reportingCost;
             const monthlyBreakdown = totalMonthly * weeksToMonths;
             const totalProject = monthlyBreakdown + (includeSetup ? setupCost : 0);
@@ -324,7 +323,6 @@
                 totalMonthly,
                 monthlyBreakdown,
                 totalProject,
-                roundedMonths,
                 includeSetup,
                 duration
             });
@@ -344,13 +342,8 @@
             const weekText = values.duration === 1 ? '1 week' : `${values.duration} weeks`;
             document.getElementById('monthly_breakdown_label').innerHTML = `<strong>Total cost for ${weekText}:</strong>`;
             
-            // Show/hide monthly breakdown row (always show since we show weeks)
-            const monthlyBreakdownRow = document.getElementById('monthly_breakdown_row');
-            monthlyBreakdownRow.classList.remove('hidden');
-            
             // Show/hide setup sections
             const setupSection = document.getElementById('setup_section');
-            
             if (values.includeSetup) {
                 setupSection.classList.remove('hidden');
             } else {
